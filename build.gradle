@@ -5,9 +5,9 @@ buildscript {
     dependencies {
         classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.2.8'
         classpath 'me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1'
-        classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
-        classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4.preview.1')
-        classpath 'io.spring.gradle:spring-io-plugin:0.0.6.RELEASE'
+        classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.6.0')
+        classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4')
+        classpath 'io.spring.gradle:spring-io-plugin:0.0.8.RELEASE'
     }
 }
 
@@ -56,8 +56,7 @@ configure(allprojects - docProjects) {
     }
 
     ext.javadocLinks = [
-        "https://docs.oracle.com/javase/7/docs/api/",
-        "https://docs.oracle.com/javaee/7/api/",
+        "https://docs.oracle.com/javase/9/docs/api/",
         "https://docs.spring.io/spring/docs/${springVersion}/javadoc-api/",
         "https://docs.jboss.org/jbossas/javadoc/4.0.5/connector/"
     ] as String[]
@@ -121,7 +120,6 @@ configure(subprojects - docProjects) { subproject ->
         if (JavaVersion.current().isJava8Compatible()) {
             options.addStringOption('Xdoclint:none', '-quiet')
         }
-        //options.overview = "${projectDir}/src/main/java/overview.html"
     }
 
     task sourcesJar(type: Jar, dependsOn:classes) {
@@ -216,7 +214,6 @@ project("spring-social-facebook-autoconfigure") {
     description = "Spring Social Facebook Auto-Configuration"
     dependencies {
       compile project(":spring-social-facebook")
-      compile("org.springframework.social:spring-social-autoconfigure:$springSocialVersion")
       compile("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
       testCompile("org.springframework.boot:spring-boot-test:$springBootVersion")
       testCompile("org.assertj:assertj-core:1.0.0")
@@ -287,31 +284,27 @@ configure(rootProject) {
         archives project(':docs').schemaZip
     }
 
-    task wrapper(type: Wrapper) {
-        description = 'Generates gradlew[.bat] scripts'
-        gradleVersion = '3.0'
-    }
-
 }
 
 configure(docProjects) {
     tasks.findByPath("artifactoryPublish")?.enabled = false
 }
 
-task updateRootDocs << {
-    copy {
-        from 'src/dist'
-        into "${rootProject.projectDir}"
-        include 'notice.txt'
-        expand(copyright: new Date().format('yyyy'), version: project.version)
-        rename { filename -> 'NOTICE' }
-    }
-
-    copy {
-        from 'src/dist'
-        into "${rootProject.projectDir}"
-        include 'license.txt'
-        rename { filename -> 'LICENSE' }
+task updateRootDocs {
+    doLast {
+        copy {
+            from 'src/dist'
+            into "${rootProject.projectDir}"
+            include 'notice.txt'
+            expand(copyright: new Date().format('yyyy'), version: project.version)
+            rename { filename -> 'NOTICE' }
+        }
+        copy {
+            from 'src/dist'
+            into "${rootProject.projectDir}"
+            include 'license.txt'
+            rename { filename -> 'LICENSE' }
+        }
     }
 }
 
