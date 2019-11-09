@@ -1,14 +1,14 @@
 buildscript {
-    repositories {
-        maven { url 'https://repo.spring.io/plugins-release' }
-    }
-    dependencies {
-        classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.2.8'
-        classpath 'me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1'
-        classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.6.0')
-        classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4')
-        classpath 'io.spring.gradle:spring-io-plugin:0.0.8.RELEASE'
-    }
+	repositories {
+		maven { url 'https://repo.spring.io/plugins-release' }
+	}
+	dependencies {
+		classpath "org.springframework.build.gradle:docbook-reference-plugin:$docbookReferencePluginVersion"
+		classpath "me.champeau.gradle:gradle-javadoc-hotfix-plugin:$gradleJavadocHotfixPlugin"
+		classpath "org.asciidoctor:asciidoctor-gradle-plugin:$asciidoctorGradlePlugin"
+		classpath "org.asciidoctor:asciidoctor-java-integration:$asciidoctorJavaIntegration"
+		classpath "io.spring.gradle:spring-io-plugin:$springIoPlugin"
+	}
 }
 
 // Set up different subproject lists for individual configuration
@@ -26,12 +26,12 @@ configure(allprojects - docProjects) {
     group = 'org.springframework.social'
 
     compileJava {
-        sourceCompatibility=1.8
-        targetCompatibility=1.8
+        sourceCompatibility="$javaVersion"
+        targetCompatibility="$javaVersion"
     }
     compileTestJava {
-        sourceCompatibility=1.8
-        targetCompatibility=1.8
+        sourceCompatibility="$javaVersion"
+        targetCompatibility="$javaVersion"
     }
 
     [compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:none']
@@ -179,19 +179,18 @@ configure(subprojects - docProjects) { subproject ->
     }
 }
 
-
 project('spring-social-facebook') {
-    description = 'Facebook API'
-    dependencies {
-        compile ("org.springframework.social:spring-social-core:$springSocialVersion")
-        compile ("org.springframework.social:spring-social-config:$springSocialVersion")
-        compile ("org.springframework.social:spring-social-security:$springSocialVersion", optional)
-        compile ("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-        compile ("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-        compile ("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-        compile ("javax.servlet:javax.servlet-api:$servletApiVersion", provided)
-        testCompile ("org.springframework:spring-test:$springVersion")
-    }
+	description = 'Facebook API'
+	dependencies {
+		compile ("org.springframework.social:spring-social-core:$springSocialVersion")
+		compile ("org.springframework.social:spring-social-config:$springSocialVersion")
+		compile ("org.springframework.social:spring-social-security:$springSocialVersion", optional)
+		compile ("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+		compile ("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+		compile ("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+		compile ("javax.servlet:javax.servlet-api:$servletApiVersion", provided)
+		testCompile ("org.springframework:spring-test:$springVersion")
+	}
 }
 
 project('spring-social-facebook-web') {
@@ -273,7 +272,6 @@ configure(rootProject) {
         archives project(':docs').docsZip
         archives project(':docs').schemaZip
     }
-
 }
 
 configure(docProjects) {
