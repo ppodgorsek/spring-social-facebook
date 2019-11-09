@@ -22,4 +22,3 @@ docs.buildFileName = 'docs.gradle'
 
 include 'spring-social-facebook'
 include 'spring-social-facebook-web'
-include 'spring-social-facebook-autoconfigure'
