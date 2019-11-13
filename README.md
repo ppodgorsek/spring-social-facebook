@@ -4,7 +4,7 @@
 
 This project contains the module allowing Spring Social to interact with Facebook.
 
-The versioning of this project follows the one of the Facebook API.
+The versioning of this project follows the one of the Facebook API, currently 5.0.
 
 ## Building the project
 
@@ -39,16 +39,6 @@ To generate IDEA metadata (.iml and .ipr files), do the following:
   ```
     ./gradlew idea
   ```
-
-### JavaDoc
-
-To build the JavaDoc, do the following from within the root directory:
-
-  ```
-    ./gradlew :docs:api
-  ```
-
-The result will be available in 'docs/build/api'.
 
 ## Please contribute!
 
