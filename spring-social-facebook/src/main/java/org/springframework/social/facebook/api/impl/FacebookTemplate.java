@@ -132,9 +132,9 @@ public class FacebookTemplate extends AbstractOAuth2ApiBinding implements Facebo
 	}
 	
 	/**
-	 * Set the Graph API version (e.g., "2.10"). If set to null, the version will be left out of the request URLs to the
+	 * Set the Graph API version (e.g., "5.0"). If set to null, the version will be left out of the request URLs to the
 	 * Graph API.
-	 * @param apiVersion the API version. Default is "2.10".
+	 * @param apiVersion the API version. Default is "5.0".
 	 */
 	public void setApiVersion(String apiVersion) {
 		this.apiVersion = apiVersion;
