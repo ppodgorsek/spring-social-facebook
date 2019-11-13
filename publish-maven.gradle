@@ -12,13 +12,13 @@ install {
 	}
 }
 
-uploadArchives {
-	repositories.mavenDeployer {
-		beforeDeployment {
-			MavenDeployment deployment -> signing.signPom(deployment)
-		}
+if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
+	uploadArchives {
+		repositories.mavenDeployer {
+			beforeDeployment {
+				MavenDeployment deployment -> signing.signPom(deployment)
+			}
 
-		if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
 			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
 				authentication(userName: ossrhUsername, password: ossrhPassword)
 			}
@@ -26,12 +26,12 @@ uploadArchives {
 			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
 				authentication(userName: ossrhUsername, password: ossrhPassword)
 			}
-		}
 
-		customizePom(pom, project)
-	}
-	doLast {
-		closeAndReleaseRepository
+			customizePom(pom, project)
+		}
+		doLast {
+			closeAndReleaseRepository
+		}
 	}
 }
 
