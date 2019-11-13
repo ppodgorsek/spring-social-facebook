@@ -7,7 +7,7 @@ buildscript {
         //maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
 	}
 	dependencies {
-		classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1"
+		classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:$gradleNexusStagingPluginVersion"
 		classpath "io.spring.gradle:spring-io-plugin:$springIoPluginVersion"
 		classpath "org.springframework.build.gradle:docbook-reference-plugin:$docbookReferencePluginVersion"
 	}
