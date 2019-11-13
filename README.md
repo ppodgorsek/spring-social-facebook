@@ -6,6 +6,8 @@ This project contains the module allowing Spring Social to interact with Faceboo
 
 The versioning of this project follows the one of the Facebook API, currently 5.0.
 
+[![Build Status](https://travis-ci.org/ppodgorsek/spring-social-facebook.svg?branch=master)](https://travis-ci.org/ppodgorsek/spring-social-facebook/)
+
 ## Building the project
 
 To check out the project and build from source, do the following:
