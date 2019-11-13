@@ -60,6 +60,13 @@ configure(allprojects) {
         testCompile "org.springframework:spring-test:$springVersion"
     }
 
+	eclipse {
+		classpath {
+			downloadJavadoc = true
+			downloadSources = true
+		}
+	}
+
     // servlet-api (2.5) and tomcat-servlet-api (3.0) classpath entries should not be
     // exported to dependent projects in Eclipse to avoid false compilation errors due
     // to changing APIs across these versions
@@ -76,6 +83,13 @@ configure(allprojects) {
             }
         }
     }
+
+	idea {
+		module {
+			downloadJavadoc = true
+			downloadSources = true
+		}
+	}
 }
 
 configure(subprojects) { subproject ->
