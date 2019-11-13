@@ -23,7 +23,10 @@ configure(allprojects) {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
     apply plugin: "maven"
-	apply plugin: 'signing'
+
+    if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
+		apply plugin: 'signing'
+	}
 
     group = 'com.github.ppodgorsek'
 
@@ -147,8 +150,10 @@ configure(subprojects) { subproject ->
         archives javadocJar
     }
 
-	signing {
-		sign configurations.archives
+	if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
+		signing {
+			sign configurations.archives
+		}
 	}
 
     configurations {
