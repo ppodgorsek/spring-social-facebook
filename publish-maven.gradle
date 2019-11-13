@@ -7,54 +7,70 @@ ext.optional = { optionalDeps << it }
 ext.provided = { providedDeps << it }
 
 install {
-    repositories.mavenInstaller {
-        customizePom(pom, project)
-    }
+	repositories.mavenInstaller {
+		customizePom(pom, project)
+	}
+}
+
+uploadArchives {
+	repositories.mavenDeployer {
+		beforeDeployment {
+			MavenDeployment deployment -> signing.signPom(deployment)
+		}
+
+		repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+
+		snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+
+		customizePom(pom, project)
+	}
+	doLast {
+		closeAndReleaseRepository
+	}
 }
 
 def customizePom(pom, gradleProject) {
-    pom.whenConfigured { generatedPom ->
-        // respect 'optional' and 'provided' dependencies
-        gradleProject.optionalDeps.each { dep ->
-            generatedPom.dependencies.findAll { it.artifactId == dep.name }*.optional = true
-        }
-        gradleProject.providedDeps.each { dep ->
-            generatedPom.dependencies.findAll { it.artifactId == dep.name }*.scope = 'provided'
-        }
+	pom.whenConfigured { generatedPom ->
+		// respect 'optional' and 'provided' dependencies
+		gradleProject.optionalDeps.each { dep ->
+			generatedPom.dependencies.findAll { it.artifactId == dep.name }*.optional = true
+		}
+		gradleProject.providedDeps.each { dep ->
+			generatedPom.dependencies.findAll { it.artifactId == dep.name }*.scope = 'provided'
+		}
 
-        // eliminate test-scoped dependencies (no need in maven central poms)
-        generatedPom.dependencies.removeAll { dep ->
-            dep.scope == 'test'
-        }
+		// eliminate test-scoped dependencies (no need in maven central poms)
+		generatedPom.dependencies.removeAll { dep ->
+			dep.scope == 'test'
+		}
 
-        // add all items necessary for maven central publication
-        generatedPom.project {
-            name = gradleProject.description
-            description = gradleProject.description
-            url = 'https://github.com/SpringSource/spring-social-facebook'
-            organization {
-                name = 'SpringSource'
-                url = 'https://projects.spring.io/spring-social'
-            }
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            scm {
-                url = 'https://github.com/SpringSource/spring-social'
-                connection = 'scm:git:git://github.com/SpringSource/spring-social-facebook'
-                developerConnection = 'scm:git:git://github.com/SpringSource/spring-social-facebook'
-            }
-            developers {
-                developer {
-                    id = 'cwalls'
-                    name = 'Craig Walls'
-                    email = 'cwalls@vmware.com'
-                }
-            }
-        }
-    }
+		// add all items necessary for maven central publication
+		generatedPom.project {
+			name = gradleProject.description
+			description = gradleProject.description
+			url = 'https://github.com/ppodgorsek/spring-social-facebook'
+			licenses {
+				license {
+					name 'The Apache Software License, Version 2.0'
+					url 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+				}
+			}
+			scm {
+				url = 'https://github.com/ppodgorsek/spring-social-facebook'
+				connection = 'scm:git:git://github.com/ppodgorsek/spring-social-facebook'
+				developerConnection = 'scm:git:git://github.com/ppodgorsek/spring-social-facebook'
+			}
+			developers {
+				developer {
+					id = 'ppodgorsek'
+					name = 'Paul Podgorsek'
+					email = 'ppodgorsek@users.noreply.github.com'
+				}
+			}
+		}
+	}
 }
