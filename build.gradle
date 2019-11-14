@@ -15,16 +15,13 @@ buildscript {
 
 apply plugin: 'io.codearte.nexus-staging'
 
-// Set up different subproject lists for individual configuration
-ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'manual' }
-
 configure(allprojects) {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
     apply plugin: "maven"
 
-    if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
+    if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
 		apply plugin: 'signing'
 	}
 
@@ -164,7 +161,7 @@ configure(subprojects) { subproject ->
         archives javadocJar
     }
 
-	if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
+	if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
 		signing {
 			sign configurations.archives
 		}
@@ -242,56 +239,8 @@ project('spring-social-facebook-web') {
     }
 }
 
-configure(rootProject) {
-    description = 'Spring Social Facebook'
-
-    // don't publish the default jar for the root project
-    configurations.archives.artifacts.clear()
-
-    dependencies { // for integration tests
-    }
-
-    // Task for creating the distro zip
-
-    task dist(type: Zip) {
-        dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') || task.name.endsWith('generatePom') }
-        classifier = 'dist'
-
-        evaluationDependsOn(':docs')
-        evaluationDependsOn(':docs:manual')
-
-        def zipRootDir = "${project.name}-$version"
-        into(zipRootDir) {
-            from(rootDir) {
-                include '*.txt'
-            }
-            into('dist') {
-                from javaProjects.collect {project -> project.libsDir }
-            }
-        }
-    }
-
-    artifacts {
-        archives dist
-    }
-}
-
-task updateRootDocs {
-	doLast {
-		copy {
-			from 'src/dist'
-			into "${rootProject.projectDir}"
-			include 'notice.txt'
-			expand(copyright: new Date().format('yyyy'), version: project.version)
-			rename { filename -> 'NOTICE' }
-		}
-		copy {
-			from 'src/dist'
-			into "${rootProject.projectDir}"
-			include 'license.txt'
-			rename { filename -> 'LICENSE' }
-		}
+if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+	task release(dependsOn: [uploadArchives, closeAndReleaseRepository]) {
+		// Nothing specific here
 	}
 }
-
-build.dependsOn('updateRootDocs')

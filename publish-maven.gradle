@@ -12,7 +12,7 @@ install {
 	}
 }
 
-if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
+if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
 	uploadArchives {
 		repositories.mavenDeployer {
 			beforeDeployment {
@@ -28,9 +28,6 @@ if (hasProperty('ossrhUsername') && hasProperty('ossrhPassword')) {
 			}
 
 			customizePom(pom, project)
-		}
-		doLast {
-			closeAndReleaseRepository
 		}
 	}
 }
