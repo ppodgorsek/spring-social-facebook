@@ -51,6 +51,13 @@ configure(allprojects) {
     }
 
     dependencies {
+		compile "org.slf4j:slf4j-api:$slf4jVersion"
+
+		compileOnly "org.projectlombok:lombok:$lombokVersion"
+		annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+		testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+		testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
         testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
         testCompile "junit:junit:$junitVersion"
         testCompile "org.mockito:mockito-core:$mockitoVersion"
