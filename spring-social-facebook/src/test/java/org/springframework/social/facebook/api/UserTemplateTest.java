@@ -15,19 +15,23 @@
  */
 package org.springframework.social.facebook.api;
 
-import static org.junit.Assert.*;
-import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
+import org.springframework.social.facebook.field.UserProfile;
 
 /**
  * @author Craig Walls
@@ -37,41 +41,31 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 	private static String PROFILE_FIELDS;
 
 	static {
-		StringBuilder builder = new StringBuilder(UserOperations.PROFILE_FIELDS[0]);
-		for (int i=1; i < UserOperations.PROFILE_FIELDS.length; i++) {
-			builder.append("%2C").append(UserOperations.PROFILE_FIELDS[i]);
+		StringBuilder builder = new StringBuilder(UserProfile.CORE_PROFILE_FIELDS[0]);
+		for (int i = 1; i < UserProfile.CORE_PROFILE_FIELDS.length; i++) {
+			builder.append("%2C").append(UserProfile.CORE_PROFILE_FIELDS[i]);
 		}
 		PROFILE_FIELDS = builder.toString();
 	}
 
 	@Test
-	public void getUserProfile_currentUser() {
-		mockServer.expect(requestTo(fbUrl("me?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
+	public void getUserCoreProfile_currentUser() {
+		mockServer.expect(requestTo(fbUrl("me?fields=" + PROFILE_FIELDS))).andExpect(method(GET))
 				.andExpect(header("Authorization", "OAuth someAccessToken"))
 				.andRespond(withSuccess(jsonResource("full-profile"), MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile();
+		User profile = facebook.userOperations().getUserCoreProfile();
 		assertBasicProfileData(profile, true);
 		assertEquals("cwalls@vmware.com", profile.getEmail());
 		assertEquals("https://www.facebook.com/habuma", profile.getLink());
-		assertEquals("xyz123abc987", profile.getThirdPartyId());
-		assertEquals(Float.valueOf(-6), profile.getTimezone());  // should be -6 ???
-		assertEquals(toDate("2010-08-22T00:01:59+0000"), profile.getUpdatedTime());
-		assertTrue(profile.isVerified());
-		assertEquals("Just some dude", profile.getAbout());
 		assertEquals("06/09/1971", profile.getBirthday());
 		assertEquals("111762725508574", profile.getLocation().getId());
 		assertEquals("Dallas, Texas", profile.getLocation().getName());
 		assertEquals("107925612568471", profile.getHometown().getId());
 		assertEquals("Plano, Texas", profile.getHometown().getName());
-		assertEquals("Jedi", profile.getReligion());
-		assertEquals("Galactic Republic", profile.getPolitical());
 		assertEquals("\"May the force be with you.\" - Common Jedi greeting", profile.getQuotes());
-		assertEquals("Married", profile.getRelationshipStatus());
 		assertEquals("533477039", profile.getSignificantOther().getId());
 		assertEquals("Raymie Walls", profile.getSignificantOther().getName());
-		assertEquals("https://www.habuma.com", profile.getWebsite());
 		assertEquals(3, profile.getInspirationalPeople().size());
 		assertEquals("121966051173827", profile.getInspirationalPeople().get(0).getId());
 		assertEquals("Homer Simpson", profile.getInspirationalPeople().get(0).getName());
@@ -98,104 +92,90 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 		assertEquals("Cal Ripken, Jr.", profile.getFavoriteAtheletes().get(1).getName());
 		assertEquals("62975399193", profile.getFavoriteAtheletes().get(2).getId());
 		assertEquals("Michael Jordan", profile.getFavoriteAtheletes().get(2).getName());
-		assertWorkHistory(profile.getWork());
-		assertEducationHistory(profile.getEducation());
 	}
 
 	@Test
-	public void getUserProfile_specificUserByUserId() {
+	public void getUserCoreProfile_specificUserByUserId() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(
+						withSuccess(jsonResource("minimal-profile"), MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertBasicProfileData(profile, true);
 	}
 
 	@Test
-	public void getUserProfile_specificUserByUserId_noMiddleName() {
+	public void getUserCoreProfile_specificUserByUserId_noMiddleName() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile-no-middle-name"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(withSuccess(jsonResource("minimal-profile-no-middle-name"),
+						MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertBasicProfileData(profile, false);
 	}
 
 	@Test
-	public void getUserProfile_specificUserByUserId_withRealTimezone() {
+	public void getUserCoreProfile_withAgeRange_13_17() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile-with-timezone"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-13-17"),
+						MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
-		assertBasicProfileData(profile, true);
-		assertEquals(Float.valueOf("-4.5"), profile.getTimezone());
-	}
-
-	@Test
-	public void getUserProfile_withAgeRange_13_17() {
-		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-13-17"), MediaType.APPLICATION_JSON));
-
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertEquals(AgeRange.AGE_13_17, profile.getAgeRange());
 		assertEquals(13, profile.getAgeRange().getMin().intValue());
 		assertEquals(17, profile.getAgeRange().getMax().intValue());
 	}
 
 	@Test
-	public void getUserProfile_withAgeRange_18_20() {
+	public void getUserCoreProfile_withAgeRange_18_20() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-18-20"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-18-20"),
+						MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertEquals(AgeRange.AGE_18_20, profile.getAgeRange());
 		assertEquals(18, profile.getAgeRange().getMin().intValue());
 		assertEquals(20, profile.getAgeRange().getMax().intValue());
 	}
 
 	@Test
-	public void getUserProfile_withAgeRange_21_plus() {
+	public void getUserCoreProfile_withAgeRange_21_plus() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-21-plus"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-21-plus"),
+						MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertEquals(AgeRange.AGE_21_PLUS, profile.getAgeRange());
 		assertEquals(21, profile.getAgeRange().getMin().intValue());
 		assertNull(profile.getAgeRange().getMax());
 	}
 
 	@Test
-	public void getUserProfile_withAgeRange_unknown() {
+	public void getUserCoreProfile_withAgeRange_unknown() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-unknown"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(withSuccess(jsonResource("minimal-profile-with-age-range-unknown"),
+						MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertEquals(AgeRange.UNKNOWN, profile.getAgeRange());
-		assertEquals(33, profile.getAgeRange().getMin().intValue());
-		assertEquals(42, profile.getAgeRange().getMax().intValue());
+		assertNull("The min age should be null", profile.getAgeRange().getMin());
+		assertNull("The max age should be null", profile.getAgeRange().getMax());
 	}
 
 	@Test
-	public void getUserProfile_withAgeRange_null() {
+	public void getUserCoreProfile_withAgeRange_null() {
 		mockServer.expect(requestTo(fbUrl("123456789?fields=" + PROFILE_FIELDS)))
-				.andExpect(method(GET))
-				.andExpect(header("Authorization", "OAuth someAccessToken"))
-				.andRespond(withSuccess(jsonResource("minimal-profile"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(
+						withSuccess(jsonResource("minimal-profile"), MediaType.APPLICATION_JSON));
 
-		User profile = facebook.userOperations().getUserProfile("123456789");
+		User profile = facebook.userOperations().getUserCoreProfile("123456789");
 		assertEquals(AgeRange.UNKNOWN, profile.getAgeRange());
 		assertNull(profile.getAgeRange().getMin());
 		assertNull(profile.getAgeRange().getMax());
@@ -203,47 +183,45 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 
 	@Test
 	public void getUserProfileImage() {
-		mockServer.expect(requestTo(fbUrl("me/picture?type=normal")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(new ClassPathResource("tinyrod.jpg", getClass()), MediaType.IMAGE_JPEG));
+		mockServer.expect(requestTo(fbUrl("me/picture?type=normal"))).andExpect(method(GET))
+				.andExpect(header("Authorization", "OAuth someAccessToken")).andRespond(withSuccess(
+						new ClassPathResource("tinyrod.jpg", getClass()), MediaType.IMAGE_JPEG));
 		facebook.userOperations().getUserProfileImage();
-		// TODO: Fix mock server handle binary data so we can test contents (or at least size) of image data.
+		// TODO: Fix mock server handle binary data so we can test contents (or at least size) of
+		// image data.
 		mockServer.verify();
 	}
 
 	@Test
 	public void getUserProfileImage_specificUserByUserId() {
-		mockServer.expect(requestTo(fbUrl("1234567/picture?type=normal")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(new ClassPathResource("tinyrod.jpg", getClass()), MediaType.IMAGE_JPEG));
+		mockServer.expect(requestTo(fbUrl("1234567/picture?type=normal"))).andExpect(method(GET))
+				.andExpect(header("Authorization", "OAuth someAccessToken")).andRespond(withSuccess(
+						new ClassPathResource("tinyrod.jpg", getClass()), MediaType.IMAGE_JPEG));
 		facebook.userOperations().getUserProfileImage("1234567");
-		// TODO: Fix mock server handle binary data so we can test contents (or at least size) of image data.
+		// TODO: Fix mock server handle binary data so we can test contents (or at least size) of
+		// image data.
 		mockServer.verify();
 	}
 
 	@Test
 	public void getUserProfileImage_specificUserAndType() {
-		mockServer.expect(requestTo(fbUrl("1234567/picture?type=large")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(new ClassPathResource("tinyrod.jpg", getClass()), MediaType.IMAGE_JPEG));
+		mockServer.expect(requestTo(fbUrl("1234567/picture?type=large"))).andExpect(method(GET))
+				.andExpect(header("Authorization", "OAuth someAccessToken")).andRespond(withSuccess(
+						new ClassPathResource("tinyrod.jpg", getClass()), MediaType.IMAGE_JPEG));
 		facebook.userOperations().getUserProfileImage("1234567", ImageType.LARGE);
-		// TODO: Fix mock server handle binary data so we can test contents (or at least size) of image data.
+		// TODO: Fix mock server handle binary data so we can test contents (or at least size) of
+		// image data.
 		mockServer.verify();
 	}
 
 	@Test
 	public void getUserPermissions() {
-		mockServer.expect(requestTo(fbUrl("me/permissions")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(jsonResource("user-permissions"), MediaType.APPLICATION_JSON));
+		mockServer.expect(requestTo(fbUrl("me/permissions"))).andExpect(method(GET))
+				.andExpect(header("Authorization", "OAuth someAccessToken")).andRespond(
+						withSuccess(jsonResource("user-permissions"), MediaType.APPLICATION_JSON));
 		List<Permission> permissions = facebook.userOperations().getUserPermissions();
 
-
-		Map<String, String> expectedPermissions = new HashMap<String, String>();
+		Map<String, String> expectedPermissions = new HashMap<>();
 		expectedPermissions.put("user_photos", "granted");
 		expectedPermissions.put("user_location", "declined");
 		expectedPermissions.put("read_stream", "granted");
@@ -257,10 +235,9 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 
 	@Test
 	public void getIdsForBusiness() {
-		mockServer.expect(requestTo(fbUrl("me/ids_for_business")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(jsonResource("ids_for_business"), MediaType.APPLICATION_JSON));
+		mockServer.expect(requestTo(fbUrl("me/ids_for_business"))).andExpect(method(GET))
+				.andExpect(header("Authorization", "OAuth someAccessToken")).andRespond(
+						withSuccess(jsonResource("ids_for_business"), MediaType.APPLICATION_JSON));
 		List<UserIdForApp> idsForBusiness = facebook.userOperations().getIdsForBusiness();
 
 		assertEquals(2, idsForBusiness.size());
@@ -274,10 +251,9 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 
 	@Test
 	public void getTaggedPlaces() {
-		mockServer.expect(requestTo(fbUrl("me/tagged_places")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(jsonResource("tagged_places"), MediaType.APPLICATION_JSON));
+		mockServer.expect(requestTo(fbUrl("me/tagged_places"))).andExpect(method(GET))
+				.andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(withSuccess(jsonResource("tagged_places"), MediaType.APPLICATION_JSON));
 		List<PlaceTag> taggedPlaces = facebook.userOperations().getTaggedPlaces();
 		assertEquals(2, taggedPlaces.size());
 		PlaceTag placeTag = taggedPlaces.get(0);
@@ -307,9 +283,9 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 	@Test
 	public void search() {
 		mockServer.expect(requestTo(fbUrl("search?q=Michael+Scott&type=user")))
-			.andExpect(method(GET))
-			.andExpect(header("Authorization", "OAuth someAccessToken"))
-			.andRespond(withSuccess(jsonResource("user-references"), MediaType.APPLICATION_JSON));
+				.andExpect(method(GET)).andExpect(header("Authorization", "OAuth someAccessToken"))
+				.andRespond(
+						withSuccess(jsonResource("user-references"), MediaType.APPLICATION_JSON));
 		List<Reference> results = facebook.userOperations().search("Michael Scott");
 		assertEquals(3, results.size());
 		assertEquals("100000737708615", results.get(0).getId());
@@ -320,51 +296,18 @@ public class UserTemplateTest extends AbstractFacebookApiTest {
 		assertEquals("Michael Scott", results.get(2).getName());
 	}
 
-	private void assertBasicProfileData(User profile, boolean withMiddleName) {
+	private void assertBasicProfileData(final User profile, final boolean withMiddleName) {
 		assertEquals("123456789", profile.getId());
 		assertEquals("Michael", profile.getFirstName());
 		if (withMiddleName) {
 			assertEquals("Craig", profile.getMiddleName());
-		} else {
+		}
+		else {
 			assertNull(profile.getMiddleName());
 		}
 		assertEquals("Walls", profile.getLastName());
 		assertEquals("Michael Craig Walls", profile.getName());
-		assertEquals(Locale.US, profile.getLocale());
 		assertEquals("male", profile.getGender());
-	}
-
-	private void assertEducationHistory(List<EducationExperience> educationHistory) {
-		assertEquals(2, educationHistory.size());
-		assertEquals("College", educationHistory.get(0).getType());
-		assertEquals("103768553006294", educationHistory.get(0).getSchool().getId());
-		assertEquals("New Mexico", educationHistory.get(0).getSchool().getName());
-		assertEquals("117348274968344", educationHistory.get(0).getYear().getId());
-		assertEquals("1994", educationHistory.get(0).getYear().getName());
-		List<Reference> concentration = educationHistory.get(0).getConcentration();
-		assertEquals(2, concentration.size());
-		assertEquals("192578844099494", concentration.get(0).getId());
-		assertEquals("Computer Science", concentration.get(0).getName());
-		assertEquals("146136662113078", concentration.get(1).getId());
-		assertEquals("Mathematics", concentration.get(1).getName());
-		assertEquals("High School", educationHistory.get(1).getType());
-		assertEquals("115157218496067", educationHistory.get(1).getSchool().getId());
-		assertEquals("Jal High School", educationHistory.get(1).getSchool().getName());
-		assertEquals("127132740657422", educationHistory.get(1).getYear().getId());
-		assertEquals("1989", educationHistory.get(1).getYear().getName());
-		assertNull(educationHistory.get(1).getConcentration());
-	}
-
-	private void assertWorkHistory(List<WorkEntry> workHistory) {
-		assertEquals(2, workHistory.size());
-		assertEquals("119387448093014", workHistory.get(0).getEmployer().getId());
-		assertEquals("SpringSource", workHistory.get(0).getEmployer().getName());
-		assertEquals("0000-00", workHistory.get(0).getStartDate());
-		assertEquals("0000-00", workHistory.get(0).getEndDate());
-		assertEquals("298846151879", workHistory.get(1).getEmployer().getId());
-		assertEquals("Improving", workHistory.get(1).getEmployer().getName());
-		assertEquals("2009-03", workHistory.get(1).getStartDate());
-		assertEquals("2010-05", workHistory.get(1).getEndDate());
 	}
 
 }

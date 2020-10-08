@@ -28,6 +28,7 @@ import org.springframework.social.facebook.api.Reference;
 import org.springframework.social.facebook.api.User;
 import org.springframework.social.facebook.api.UserIdForApp;
 import org.springframework.social.facebook.api.UserOperations;
+import org.springframework.social.facebook.field.UserProfile;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -37,70 +38,106 @@ import com.fasterxml.jackson.databind.JsonNode;
 class UserTemplate implements UserOperations {
 
 	private final GraphApi graphApi;
-	
+
 	private final RestTemplate restTemplate;
 
-	public UserTemplate(GraphApi graphApi, RestTemplate restTemplate) {
+	public UserTemplate(final GraphApi graphApi, final RestTemplate restTemplate) {
 		this.graphApi = graphApi;
 		this.restTemplate = restTemplate;
 	}
 
-	public User getUserProfile() {
-		return getUserProfile("me");
+	@Override
+	public User getUserCoreProfile() {
+		return getUserCoreProfile(UserProfile.CURRENT_USER);
 	}
 
-	public User getUserProfile(String facebookId) {
-		return graphApi.fetchObject(facebookId, User.class, PROFILE_FIELDS);
+	@Override
+	public User getUserCoreProfile(final String facebookId) {
+		return getUserProfile(facebookId, UserProfile.CORE_PROFILE_FIELDS);
 	}
-	
+
+	@Override
+	public User getUserProfile(final String... profileFields) {
+
+		if (profileFields == null || profileFields.length == 0) {
+			return getUserCoreProfile();
+		}
+
+		return getUserProfile(UserProfile.CURRENT_USER, profileFields);
+	}
+
+	@Override
+	public User getUserProfile(final String facebookId, final String... profileFields) {
+
+		if (profileFields == null || profileFields.length == 0) {
+			return getUserCoreProfile(facebookId);
+		}
+
+		return graphApi.fetchObject(facebookId, User.class, profileFields);
+	}
+
+	@Override
 	public byte[] getUserProfileImage() {
-		return getUserProfileImage("me", ImageType.NORMAL);
+		return getUserProfileImage(UserProfile.CURRENT_USER, ImageType.NORMAL);
 	}
-	
-	public byte[] getUserProfileImage(String userId) {
+
+	@Override
+	public byte[] getUserProfileImage(final String userId) {
 		return getUserProfileImage(userId, ImageType.NORMAL);
 	}
 
-	public byte[] getUserProfileImage(ImageType imageType) {
-		return getUserProfileImage("me", imageType);
+	@Override
+	public byte[] getUserProfileImage(final ImageType imageType) {
+		return getUserProfileImage(UserProfile.CURRENT_USER, imageType);
 	}
-	
-	public byte[] getUserProfileImage(String userId, ImageType imageType) {
+
+	@Override
+	public byte[] getUserProfileImage(final String userId, final ImageType imageType) {
 		return graphApi.fetchImage(userId, "picture", imageType);
 	}
 
-	public byte[] getUserProfileImage(Integer width, Integer height) {
-		return getUserProfileImage("me", width, height);
+	@Override
+	public byte[] getUserProfileImage(final Integer width, final Integer height) {
+		return getUserProfileImage(UserProfile.CURRENT_USER, width, height);
 	}
 
-	public byte[] getUserProfileImage(String userId, Integer width, Integer height) {
+	@Override
+	public byte[] getUserProfileImage(final String userId, final Integer width,
+			final Integer height) {
 		return graphApi.fetchImage(userId, "picture", width, height);
 	}
 
+	@Override
 	public List<Permission> getUserPermissions() {
-		JsonNode responseNode = restTemplate.getForObject(graphApi.getBaseGraphApiUrl() + "me/permissions", JsonNode.class);
+		JsonNode responseNode = restTemplate.getForObject(
+				graphApi.getBaseGraphApiUrl() + UserProfile.CURRENT_USER + "/permissions",
+				JsonNode.class);
 		return deserializePermissionsNodeToList(responseNode);
 	}
-	
+
+	@Override
 	public List<UserIdForApp> getIdsForBusiness() {
-		return graphApi.fetchConnections("me", "ids_for_business", UserIdForApp.class);
-	}
-	
-	public List<PlaceTag> getTaggedPlaces() {
-		return graphApi.fetchConnections("me", "tagged_places", PlaceTag.class);
+		return graphApi.fetchConnections(UserProfile.CURRENT_USER, "ids_for_business",
+				UserIdForApp.class);
 	}
 
-	public PagedList<Reference> search(String query) {
-		MultiValueMap<String, String> queryMap = new LinkedMultiValueMap<String, String>();
+	@Override
+	public List<PlaceTag> getTaggedPlaces() {
+		return graphApi.fetchConnections(UserProfile.CURRENT_USER, "tagged_places", PlaceTag.class);
+	}
+
+	@Override
+	public PagedList<Reference> search(final String query) {
+		MultiValueMap<String, String> queryMap = new LinkedMultiValueMap<>();
 		queryMap.add("q", query);
 		queryMap.add("type", "user");
 		return graphApi.fetchConnections("search", null, Reference.class, queryMap);
 	}
 
-	private List<Permission> deserializePermissionsNodeToList(JsonNode jsonNode) {
-		JsonNode dataNode = jsonNode.get("data");			
-		List<Permission> permissions = new ArrayList<Permission>();
-		for (Iterator<JsonNode> elementIt = dataNode.elements(); elementIt.hasNext(); ) {
+	private List<Permission> deserializePermissionsNodeToList(final JsonNode jsonNode) {
+		JsonNode dataNode = jsonNode.get("data");
+		List<Permission> permissions = new ArrayList<>();
+		for (Iterator<JsonNode> elementIt = dataNode.elements(); elementIt.hasNext();) {
 			JsonNode permissionsElement = elementIt.next();
 			String name = permissionsElement.get("permission").asText();
 			String status = permissionsElement.get("status").asText();

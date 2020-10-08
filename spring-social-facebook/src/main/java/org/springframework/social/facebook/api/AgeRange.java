@@ -17,56 +17,57 @@ package org.springframework.social.facebook.api;
 
 /**
  * Enum representing a user's age range.
+ *
  * @author Craig Walls
  */
 public enum AgeRange {
 
-	UNKNOWN(null, null),
-	AGE_13_17(13, 17),
-	AGE_18_20(18, 20),
-	AGE_21_PLUS(21, null);
-	
+	UNKNOWN(null, null), AGE_13_17(13, 17), AGE_18_20(18, 20), AGE_21_PLUS(21, null);
+
 	private Integer min;
 	private Integer max;
 
-	private AgeRange(Integer min, Integer max) {
+	private AgeRange(final Integer min, final Integer max) {
 		this.min = min;
 		this.max = max;
 	}
-	
+
 	/**
 	 * @return The minimum integer value for the range (possibly null).
 	 */
 	public Integer getMin() {
 		return min;
 	}
-	
+
 	/**
 	 * @return The maximum integer value for the range (possibly null).
 	 */
 	public Integer getMax() {
 		return max;
 	}
-	
+
 	/**
 	 * Constructs an AgeRange from the min/max age values.
-	 * @param min The minimum age
-	 * @param max The maximum age
+	 *
+	 * @param min
+	 *            The minimum age
+	 * @param max
+	 *            The maximum age
 	 * @return an AgeRange
 	 */
-	public static AgeRange fromMinMax(Integer min, Integer max) {
+	public static AgeRange fromMinMax(final Integer min, final Integer max) {
+
 		if (min == 13 && max == 17) {
 			return AGE_13_17;
-		} else if (min == 18 && max == 20) {
+		}
+		else if (min == 18 && max == 20) {
 			return AGE_18_20;
-		} else if (min == 21 && max == null) {
+		}
+		else if (min == 21 && max == null) {
 			return AGE_21_PLUS;
 		}
-		
-		AgeRange unknown = AgeRange.UNKNOWN;
-		unknown.min = min;
-		unknown.max = max;
-		return unknown;
+
+		return AgeRange.UNKNOWN;
 	}
 
 }

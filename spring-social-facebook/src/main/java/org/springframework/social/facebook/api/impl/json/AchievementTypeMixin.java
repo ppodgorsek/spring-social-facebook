@@ -37,38 +37,40 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 abstract class AchievementTypeMixin extends FacebookObjectMixin {
 
 	@JsonCreator
-	AchievementTypeMixin(
-			@JsonProperty("id") String id, 
-			@JsonProperty("type") String type, 
-			@JsonProperty("title") String title, 
-			@JsonProperty("url") String url, 
-			@JsonProperty("description") String description, 
-			@JsonProperty("image") List<Image> image, 
-			@JsonProperty("data") @JsonDeserialize(using = AchievementPointsDeserializer.class) int points, 
-			@JsonProperty("created_time") Date createdTime, 
-			@JsonProperty("updated_time") Date updatedTime, 
-			@JsonProperty("application") ApplicationReference application, 
-			@JsonProperty("is_scraped") boolean isScraped) {}
-	
+	AchievementTypeMixin(@JsonProperty("id") final String id,
+			@JsonProperty("type") final String type, @JsonProperty("title") final String title,
+			@JsonProperty("url") final String url,
+			@JsonProperty("description") final String description,
+			@JsonProperty("image") final List<Image> image,
+			@JsonProperty("data") @JsonDeserialize(using = AchievementPointsDeserializer.class) final int points,
+			@JsonProperty("created_time") final Date createdTime,
+			@JsonProperty("updated_time") final Date updatedTime,
+			@JsonProperty("application") final ApplicationReference application,
+			@JsonProperty("is_scraped") final boolean isScraped) {
+	}
+
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static abstract class ImageMixin extends FacebookObjectMixin {
-		
+
 		@JsonCreator
-		ImageMixin(
-				@JsonProperty("url") String url, 
-				@JsonProperty("width") int width, 
-				@JsonProperty("height") int height) {}
-	}
-	
-	private static class AchievementPointsDeserializer extends JsonDeserializer<Integer> {
-		@Override
-		public Integer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-			Map map = jp.readValueAs(Map.class);
-			return map.containsKey("points") ? Integer.valueOf(String.valueOf(map.get("points"))): 0; 
+		ImageMixin(@JsonProperty("url") final String url, @JsonProperty("width") final int width,
+				@JsonProperty("height") final int height) {
 		}
-		
+	}
+
+	private static class AchievementPointsDeserializer extends JsonDeserializer<Integer> {
+
+		@SuppressWarnings("unchecked")
 		@Override
-		public Integer getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+		public Integer deserialize(final JsonParser jp, final DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			Map<String, Object> map = jp.readValueAs(Map.class);
+			return map.containsKey("points") ? Integer.valueOf(String.valueOf(map.get("points")))
+					: 0;
+		}
+
+		@Override
+		public Integer getNullValue(final DeserializationContext ctxt) throws JsonMappingException {
 			return 0;
 		}
 	}
