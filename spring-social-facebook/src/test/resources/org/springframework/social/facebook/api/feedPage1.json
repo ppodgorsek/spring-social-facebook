@@ -79,7 +79,7 @@
             "link":"https:\/\/www.facebook.com\/photo.php?fbid=160064377383138&set=a.160064047383171.34994.100001387295207",
             "icon":"https:\/\/b.static.ak.fbcdn.net\/rsrc.php\/v1\/yz\/r\/StEh3RhPvjk.gif",
             "type":"photo",
-	         "actions": [
+	        "actions": [
 	            {
 	               "name": "Comment",
 	               "link": "https://www.facebook.com/73579/posts/160064377383138"
@@ -99,7 +99,7 @@
     ],
     "paging":
     {
-        "previous":"https:\/\/graph.facebook.com\/v7.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage0Token",
-        "next":"https:\/\/graph.facebook.com\/v7.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage2Token"
+        "previous":"https:\/\/graph.facebook.com\/v8.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage0Token",
+        "next":"https:\/\/graph.facebook.com\/v8.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage2Token"
     }
 }
