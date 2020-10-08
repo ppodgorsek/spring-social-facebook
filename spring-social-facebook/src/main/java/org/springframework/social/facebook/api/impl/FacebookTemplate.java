@@ -164,8 +164,8 @@ public class FacebookTemplate extends AbstractOAuth2ApiBinding implements Facebo
 	}
 
 	/**
-	 * Set the Graph API version (e.g., "7.0"). If set to null, the version will be left out of the
-	 * request URLs to the Graph API.
+	 * Set the Graph API version (e.g., {@link Facebook.DEFAULT_API_VERSION}). If set to null, the
+	 * version will be left out of the request URLs to the Graph API.
 	 *
 	 * @param apiVersion
 	 *            the API version.

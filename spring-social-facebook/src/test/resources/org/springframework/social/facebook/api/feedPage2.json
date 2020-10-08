@@ -65,7 +65,7 @@
     ],
     "paging":
     {
-      "previous":"https:\/\/graph.facebook.com\/v7.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage1Token",
-      "next":"https:\/\/graph.facebook.com\/v7.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage3Token"
+      "previous":"https:\/\/graph.facebook.com\/v8.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage1Token",
+      "next":"https:\/\/graph.facebook.com\/v8.0\/100001387295207\/feed?format=json&limit=2&access_token=fakeToken&__paging_token=fakePage3Token"
     }
 }
