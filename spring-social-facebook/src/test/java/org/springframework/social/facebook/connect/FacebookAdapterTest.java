@@ -15,7 +15,8 @@
  */
 package org.springframework.social.facebook.connect;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.lang.reflect.Field;
 
@@ -33,16 +34,17 @@ public class FacebookAdapterTest {
 
 	private static final String GRAPH_API_URL = "https://graph.facebook.com/" + API_VERSION + "/";
 
-	private FacebookAdapter apiAdapter = new FacebookAdapter();
-	
-	private Facebook facebook = Mockito.mock(Facebook.class);
-	
+	private final FacebookAdapter apiAdapter = new FacebookAdapter();
+
+	private final Facebook facebook = Mockito.mock(Facebook.class);
+
 	@Test
-	public void fetchProfile() {		
+	public void fetchProfile() {
 		UserOperations userOperations = Mockito.mock(UserOperations.class);
 		Mockito.when(facebook.userOperations()).thenReturn(userOperations);
 		Mockito.when(facebook.getBaseGraphApiUrl()).thenReturn(GRAPH_API_URL);
-		Mockito.when(userOperations.getUserProfile()).thenReturn(new User("12345678", "Craig Walls", "Craig", "Walls", null, null));
+		Mockito.when(userOperations.getUserProfile())
+				.thenReturn(new User("12345678", "Craig Walls", "Craig", "Walls", null));
 		UserProfile profile = apiAdapter.fetchUserProfile(facebook);
 		assertEquals("12345678", profile.getId());
 		assertEquals("Craig Walls", profile.getName());
@@ -54,7 +56,7 @@ public class FacebookAdapterTest {
 
 	@Test
 	public void setConnectionValues() throws Exception {
-		User user = new User("12345678", "Craig Walls", "Craig", "Walls", null, null);
+		User user = new User("12345678", "Craig Walls", "Craig", "Walls", null);
 		Field linkField = user.getClass().getDeclaredField("link");
 		linkField.setAccessible(true);
 		linkField.set(user, "https://www.facebook.com/975041837");
@@ -79,7 +81,8 @@ public class FacebookAdapterTest {
 			return displayName;
 		}
 
-		public void setDisplayName(String displayName) {
+		@Override
+		public void setDisplayName(final String displayName) {
 			this.displayName = displayName;
 		}
 
@@ -87,7 +90,8 @@ public class FacebookAdapterTest {
 			return imageUrl;
 		}
 
-		public void setImageUrl(String imageUrl) {
+		@Override
+		public void setImageUrl(final String imageUrl) {
 			this.imageUrl = imageUrl;
 		}
 
@@ -95,7 +99,8 @@ public class FacebookAdapterTest {
 			return profileUrl;
 		}
 
-		public void setProfileUrl(String profileUrl) {
+		@Override
+		public void setProfileUrl(final String profileUrl) {
 			this.profileUrl = profileUrl;
 		}
 
@@ -103,9 +108,10 @@ public class FacebookAdapterTest {
 			return providerUserId;
 		}
 
-		public void setProviderUserId(String providerUserId) {
+		@Override
+		public void setProviderUserId(final String providerUserId) {
 			this.providerUserId = providerUserId;
 		}
-		
+
 	}
 }
